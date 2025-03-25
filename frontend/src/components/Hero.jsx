@@ -28,7 +28,7 @@ const Hero = () => {
         </div>
       </div>
       
-      {/* Hero right - image section */}
+     {/**Hero section right image */}
       <div className="w-full sm:w-1/2 relative overflow-hidden">
         <img 
           className="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105" 
