@@ -4,7 +4,7 @@ import { assets } from "../assets/assets";
 const Footer = () => {
   return (
     <footer className="bg-gray-50 py-12 px-6 ">
-      <div className="container mx-auto flex flex-col sm:grid grid-cols-[3fr_1fr_1fr_1fr] gap-10 mt-8">
+      <div className="container mx-auto flex flex-col sm:grid grid-cols-[3fr_1fr_1fr_1fr] gap-10 ">
         {/* Company Description */}
         <div>
           <img src={assets.logo} alt="NepalMart Logo" className="mb-5 w-32" />
