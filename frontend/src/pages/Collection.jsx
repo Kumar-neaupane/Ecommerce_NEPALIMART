@@ -5,7 +5,7 @@ import Title from '../components/Title';
 import ProductItem from '../components/ProductItem';
 
 const Collection = () => {
-  const { products } = useContext(ShopContext);
+  const { products, search, showSearch } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState(products);
 
@@ -22,21 +22,37 @@ const Collection = () => {
   });
 
   useEffect(() => {
-    // Filter products based on selected categories and types
+    // Filter products based on search, selected categories and types
     const filteredProducts = products.filter(product => {
-      const categoryMatch = !Object.keys(selectedCategories).some(category => 
-        selectedCategories[category]) || 
-        selectedCategories[product.category];
+      // Search filter
+      const searchMatch = !search || 
+        (product.name && product.name.toLowerCase().includes(search.toLowerCase())) ||
+        (product.category && product.category.toLowerCase().includes(search.toLowerCase())) ||
+        (product.type && product.type.toLowerCase().includes(search.toLowerCase()));
       
-      const typeMatch = !Object.keys(selectedTypes).some(type => 
-        selectedTypes[type]) || 
-        selectedTypes[product.type];
+      // Check if any category is selected
+      const isAnyCategorySelected = Object.values(selectedCategories).some(selected => selected);
       
-      return categoryMatch && typeMatch;
+      // Check if any type is selected
+      const isAnyTypeSelected = Object.values(selectedTypes).some(selected => selected);
+      
+      // If no categories are selected, all products pass the category check
+      let categoryMatch = !isAnyCategorySelected;
+      if (isAnyCategorySelected && product.category) {
+        categoryMatch = selectedCategories[product.category] || false;
+      }
+      
+      // If no types are selected, all products pass the type check
+      let typeMatch = !isAnyTypeSelected;
+      if (isAnyTypeSelected && product.type) {
+        typeMatch = selectedTypes[product.type] || false;
+      }
+      
+      return searchMatch && categoryMatch && typeMatch;
     });
 
     setFilterProducts(filteredProducts);
-  }, [products, selectedCategories, selectedTypes]);
+  }, [products, selectedCategories, selectedTypes, search]);
 
   const handleCategoryToggle = (category) => {
     setSelectedCategories(prev => ({
@@ -123,7 +139,11 @@ const Collection = () => {
       {/* Right side */}
       <div className='flex-1'>
         <div className='flex justify-between text-base sm:text-2xl mb-4'>
-          <Title text1={'ALL'}  text2={'COLLECTIONS'}/>
+          {search ? (
+            <Title text1={'SEARCH'} text2={`RESULTS: "${search}"`} />
+          ) : (
+            <Title text1={'ALL'} text2={'COLLECTIONS'} />
+          )}
           {/* Sort the products */}
           <select 
             className='border-2 border-gray-300 text-sm px-2'
@@ -134,9 +154,22 @@ const Collection = () => {
             <option value="high-low">Sort by: High to Low</option>
           </select>
         </div>
+
+        {/* Show no results message when search yields no products */}
+        {filterProducts.length === 0 && (
+          <div className="text-center py-10">
+            <p className="text-xl text-gray-500">No products found</p>
+            {search && (
+              <p className="text-gray-400 mt-2">
+                We couldn't find any products matching "{search}"
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Map Products */}
         <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6'>
-          {filterProducts.map((item, index) => (
+          {filterProducts.map((item) => (
             <ProductItem 
               key={item._id} 
               name={item.name} 
